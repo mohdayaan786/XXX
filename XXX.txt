@@ -1,0 +1,1027 @@
+                                       ---------CPU Scheduling Algorithms---------
+
+1. FIRST COME FIRST SERVED (FCFS) :
+________________________________
+
+Code :
+_____
+
+#include <stdio.h>
+struct process {
+    int burst, wait;
+} 
+p[20] = {0, 0};
+int main() {
+    int n, i, totalwait = 0, totalturn = 0;
+    printf("\nEnter The No Of Process :");
+    scanf("%d", &n);
+    for (i = 0; i < n; i++) {
+        printf("Enter The Burst Time (in ms) For Process #%2d :", i + 1);
+        scanf("%d", &p[i].burst);
+    }
+    printf("\nProcess \t Waiting Time TurnAround Time ");
+    printf("\n \t (in ms) (in ms)");
+    for (i = 0; i < n; i++) {
+        printf("\nProcess # %-12d%-15d%-15d", i + 1, p[i].wait, p[i].wait + p[i].burst);
+        p[i + 1].wait = p[i].wait + p[i].burst;
+        totalwait = totalwait + p[i].wait;
+        totalturn = totalturn + p[i].wait + p[i].burst;
+    }
+    printf("\n\nAVERAGE\n--------- ");
+    printf("\nWaiting Time : %f ms", totalwait / (float)n);
+    printf("\nTurnAround Time : %f ms\n\n", totalturn / (float)n);
+    return 0;
+}
+
+Output :
+______
+
+Enter The No Of Process :3
+Enter The Burst Time (in ms) For Process # 1 :10  
+Enter The Burst Time (in ms) For Process # 2 :30
+Enter The Burst Time (in ms) For Process # 3 :20
+
+Process          Waiting Time TurnAround Time
+         (in ms) (in ms)
+Process # 1           0              10
+Process # 2           10             40
+Process # 3           40             60
+
+AVERAGE
+---------
+Waiting Time : 16.666667 ms
+TurnAround Time : 36.666667 ms
+
+__________________________________________________________________________________________________________________________________________
+
+2. SHORTEST JOB FIRST(SJF) :
+__________________________
+
+Code :
+_____
+
+#include <stdio.h>
+struct process{
+    int burst, wait, no;
+} 
+p[20] = {0, 0};
+int main(){
+    int n, i, j, totalwait = 0, totalturn = 0;
+    printf("\nEnter The No Of Process :");
+    scanf("%d", &n);
+    for (i = 0; i < n; i++){
+        printf("Enter The Burst Time (in ms) For Process #%2d :", i + 1);
+        scanf("%d", &p[i].burst);
+        p[i].no = i + 1;
+    }
+    for (i = 0; i < n; i++){
+        for (j = 0; j < n - i - 1; j++){
+            if (p[j].burst > p[j + 1].burst){
+                p[j].burst ^= p[j + 1].burst ^= p[j].burst ^= p[j + 1].burst;
+                p[j].no ^= p[j + 1].no ^= p[j].no ^= p[j + 1].no;
+            }
+        }
+    }
+    printf("\nProcess \t Waiting Time TurnAround Time ");
+    for (i = 0; i < n; i++) {
+        printf("\nProcess # %-12d%-15d%-15d", p[i].no, p[i].wait, p[i].wait + p[i].burst);
+        p[i + 1].wait = p[i].wait + p[i].burst;
+        totalwait = totalwait + p[i].wait;
+        totalturn = totalturn + p[i].wait + p[i].burst;
+    }
+    printf("\n\nAverage\n---------");
+    printf("\nWaiting Time : %f ms", totalwait / (float)n);
+    printf("\nTurnAround Time : %f ms\n\n", totalturn / (float)n);
+    return 0;
+}
+
+Output :
+______
+
+Enter The No Of Process :3
+Enter The Burst Time (in ms) For Process # 1 :20  
+Enter The Burst Time (in ms) For Process # 2 :30
+Enter The Burst Time (in ms) For Process # 3 :10
+
+Process          Waiting Time TurnAround Time
+Process # 3           0              10
+Process # 1           10             30
+Process # 2           30             60
+
+Average
+---------
+Waiting Time : 13.333333 ms
+TurnAround Time : 33.333333 ms
+__________________________________________________________________________________________________________________________________________
+
+3. PRIORITY SCHEDULING :
+_______________________
+
+
+Code :
+_____
+
+#include <stdio.h>
+struct process {
+    int burst, wait, no, priority;
+} 
+p[20] = {0, 0};
+int main(){
+    int n, i, j, totalwait = 0, totalturn = 0;
+    printf("\nEnter The No Of Process :");
+    scanf("%d", &n);
+    for (i = 0; i < n; i++){
+        printf("Enter The Burst Time (in ms) For Process #%2d :", i + 1);
+        scanf("%d", &p[i].burst);
+        printf("Enter The Priority For Process #%2d :", i + 1);
+        scanf("%d", &p[i].priority);
+        p[i].no = i + 1;
+    }
+    for (i = 0; i < n; i++){
+        for (j = 0; j < n - i - 1; j++){
+            if (p[j].priority > p[j + 1].priority){
+                p[j].burst ^= p[j + 1].burst ^= p[j].burst ^= p[j + 1].burst;
+                p[j].no ^= p[j + 1].no ^= p[j].no ^= p[j + 1].no;
+                // Simple way to swap 2 var’s
+                p[j].priority ^= p[j + 1].priority ^= p[j].priority ^= p[j + 1].priority;
+                // printf("j");
+            }
+        }
+    }
+    printf("\nProcess \t Starting Ending Waiting TurnAround ");
+    printf("\n \t \t    Time      Time    Time              Time ");
+    for (i = 0; i < n; i++){
+        printf("\nProcess # %-11d%-10d%-10d%-10d%10d", p[i].no, p[i].wait, p[i].wait + p[i].burst, p[i].wait, p[i].wait + p[i].burst);
+        p[i + 1].wait = p[i].wait + p[i].burst;
+        totalwait = totalwait + p[i].wait;
+        totalturn = totalturn + p[i].wait + p[i].burst;
+    }
+    printf("\n\nAverage\n---------");
+    printf("\nWaiting Time : %f ms", totalwait / (float)n);
+    printf("\nTurnAround Time : %f ms\n\n", totalturn / (float)n);
+    return 0;
+}
+
+Output :
+_______
+
+Enter The No Of Process :3
+Enter The Burst Time (in ms) For Process # 1 :30
+Enter The Priority For Process # 1 :2
+Enter The Burst Time (in ms) For Process # 2 :20
+Enter The Priority For Process # 2 :1
+Enter The Burst Time (in ms) For Process # 3 :40
+Enter The Priority For Process # 3 :3
+
+Process          Starting Ending Waiting TurnAround
+                    Time      Time    Time              Time
+Process # 2          0         20        0                 20
+Process # 1          20        50        20                50
+Process # 3          50        90        50                90
+
+Average
+---------
+Waiting Time : 23.333333 ms
+TurnAround Time : 53.333333 ms
+
+__________________________________________________________________________________________________________________________________________
+
+4. ROUND ROBIN SCHEDULING :
+__________________________
+
+Code :
+_____
+
+#include <stdio.h>
+struct process {
+    int burst, wait, comp, f;
+} 
+p[20] = {0, 0};
+int main() {
+    int n, i, j, totalwait = 0, totalturn = 0, quantum, flag = 1,time = 0;
+    printf("\nEnter The No Of Process :");
+    scanf("%d", &n);
+    printf("\nEnter The Quantum time (in ms) :");
+    scanf("%d", &quantum);
+    for (i = 0; i < n; i++) {
+        printf("Enter The Burst Time (in ms) For Process #%2d :", i + 1);
+        scanf("%d", &p[i].burst);
+        p[i].f = 1;
+    }
+    printf("\nOrder Of Execution \n");
+    printf("\nProcess Starting Ending Remaining");
+    printf("\n Time Time Time");
+    while (flag == 1) {
+        flag = 0;
+        for (i = 0; i < n; i++) {
+            if (p[i].f == 1) {
+                flag = 1;
+                j = quantum;
+                if ((p[i].burst - p[i].comp) > quantum) {
+                    p[i].comp += quantum;
+                }
+                else {
+                    p[i].wait = time - p[i].comp;
+                    j = p[i].burst - p[i].comp;
+                    p[i].comp = p[i].burst;
+                    p[i].f = 0;
+                }
+                printf("\nprocess # %-3d %-10d %-10d %-10d", i + 1, time, time + j, p[i].burst-p[i].comp);
+                time += j;
+            }
+        }
+    }
+    printf("\n\n------------------");
+    printf("\nProcess \t Waiting Time TurnAround Time ");
+    for (i = 0; i < n; i++) {
+        printf("\nProcess # %-12d%-15d%-15d", i + 1, p[i].wait, p[i].wait + p[i].burst);
+        totalwait = totalwait + p[i].wait;
+        totalturn = totalturn + p[i].wait + p[i].burst;
+    }
+    printf("\n\nAverage\n------------------");
+    printf("\nWaiting Time : %f ms", totalwait / (float)n);
+    printf("\nTurnAround Time : %f ms\n\n", totalturn / (float)n);
+    return 0;
+}
+
+Output :
+______
+
+Enter The No Of Process :3
+
+Enter The Quantum time (in ms) :5
+Enter The Burst Time (in ms) For Process # 1 :25
+Enter The Burst Time (in ms) For Process # 2 :30
+Enter The Burst Time (in ms) For Process # 3 :54
+
+Order Of Execution 
+
+Process Starting Ending Remaining
+ Time Time Time
+process # 1   0          5          20
+process # 2   5          10         25
+process # 3   10         15         49
+process # 1   15         20         15
+process # 2   20         25         20
+process # 3   25         30         44
+process # 1   30         35         10
+process # 2   35         40         15
+process # 3   40         45         39
+process # 1   45         50         5
+process # 2   50         55         10
+process # 3   55         60         34
+process # 1   60         65         0
+process # 2   65         70         5
+process # 3   70         75         29
+process # 2   75         80         0
+process # 3   80         85         24
+process # 3   85         90         19
+process # 3   90         95         14
+process # 3   95         100        9
+process # 3   100        105        4
+process # 3   105        109        0
+
+------------------
+Process          Waiting Time TurnAround Time
+Process # 1           40             65
+Process # 2           50             80
+Process # 3           55             109
+
+Average
+------------------
+Waiting Time : 48.333333 ms
+TurnAround Time : 84.666667 ms
+
+__________________________________________________________________________________________________________________________________________
+
+                                               ------------ MEMORY MANAGEMENT SCHEMES I --------------
+
+1. FIRST FIT :
+_____________
+
+Code :
+_____
+
+#include <stdio.h>
+struct process {
+    int size;
+    char name[20];
+    int id;
+} 
+p[20] = {0, 0};
+struct block {
+    int size;
+    int id;
+} 
+b[20] = {0, 0};
+int main() {
+    int nb, np, i, j, totalwait = 0, totalturn = 0, quantum = 4, flag = 1, time = 0;
+    printf("\nEnter The No Of Blocks :");
+    scanf("%d", &nb);
+    for (i = 0; i < nb; i++){
+        printf("Enter The Size of Block $ %-3d :", i + 1);
+        scanf("%d", &b[i].size);
+    }
+    printf("\nEnter The No Of Processes :");
+    scanf("%d", &np);
+    for (i = 0; i < np; i++){
+        printf("Enter The Name of process # %-3d:", i + 1);
+        scanf("%s", p[i].name);
+        printf("Enter The Size of process # %-3d :", i + 1);
+        scanf("%d", &p[i].size);
+    }
+    for (i = 0; i < np; i++){
+        for (j = 0; j < nb; j++) {
+            if (b[j].id == 0 && p[i].size <= b[j].size) {
+                b[j].id = i + 1;
+                p[i].id = j + 1;
+                flag = 1;
+                break;
+            }
+        }
+    }
+    printf("Block \n\n-----------");
+    printf("\nBlock ID Block_Size Process_Name Process_Size");
+    for (i = 0; i < nb; i++) {
+        if (b[i].id) printf(" \nBlock #%-7d%-10d%-10s%-10d", i + 1, b[i].size, p[b[i].id - 1].name, p[b[i].id - 1].size);
+        else printf(" \nBlock #%-7d%-10dEmpty Empty ", i + 1, b[i].size);
+    }
+    printf("\n\nProcess \n-----------");
+    printf("\nProcess_Name Process_Size Block ID Block_Size");
+    for (i = 0; i < np; i++) {
+        if (p[i].id) printf(" \nProcess $ %-10s%-10d%-10d%-10d ", p[i].name, p[i].size, p[i].id, b[p[i].id - 1].size);
+        else printf(" \nProcess $ %-10s%-10dWaiting Waiting ", p[i].name, p[i].size);
+    }
+    printf("\n");
+}
+
+Output :
+_______
+
+Enter The No Of Blocks :3
+Enter The Size of Block $ 1   :30
+Enter The Size of Block $ 2   :20
+Enter The Size of Block $ 3   :10
+
+Enter The No Of Processes :3
+Enter The Name of process # 1  :P
+Enter The Size of process # 1   :10
+Enter The Name of process # 2  :Q
+Enter The Size of process # 2   :30
+Enter The Name of process # 3  :R
+Enter The Size of process # 3   :20
+Block 
+
+-----------
+Block ID Block_Size Process_Name Process_Size 
+Block #1      30        P         10
+Block #2      20        R         20
+Block #3      10        Empty    Empty 
+
+Process
+-----------
+Process_Name Process_Size Block ID Block_Size
+Process $ P         10        1         30
+Process $ Q         30        Waiting Waiting
+Process $ R         20        2         20
+
+__________________________________________________________________________________________________________________________________________
+
+2. BEST FIT :
+_____________
+
+Code :
+_____
+
+#include <stdio.h>
+#include <conio.h>
+struct process {
+    int size;
+    int id;
+}
+p[20] = {0, 0};
+struct block {
+    int no;
+    int size;
+    int id;
+} 
+b[20] = {0, 0};
+int main() {
+    int nb, np, i, j, totalwait = 0, totalturn = 0, quantum = 4, flag = 1, time = 0;
+    printf("\nEnter The No Of Blocks :");
+    scanf("%d", &nb);
+    for (i = 0; i < nb; i++) {
+        printf("Enter The Size of Block $ %-3d :", i + 1);
+        scanf("%d", &b[i].size);
+        b[i].no = i + 1;
+    }
+    printf("\nEnter The No Of Processes :");
+    scanf("%d", &np);
+    for (i = 0; i < np; i++) {
+        printf("Enter The Size of process # %-3d:", i + 1);
+        scanf("%d", &p[i].size);
+    }
+    for (i = 0; i < nb; i++) {
+        for (j = 0; j < nb - i - 1; j++) {
+            if (b[j].size > b[j + 1].size) {
+                b[j].size ^= b[j + 1].size ^= b[j].size ^= b[j + 1].size;
+                b[j].no ^= b[j + 1].no ^= b[j].no ^= b[j + 1].no;
+            }
+        }
+    }
+    for (i = 0; i < np; i++) {
+        for (j = 0; j < nb; j++) {
+            if (b[j].id == 0 && p[i].size <= b[j].size) {
+                b[j].id = i + 1;
+                p[i].id = b[j].no;
+                flag = 1;
+                break;
+            }
+        }
+    }
+    printf("Block \n\n-----------");
+    printf("\nBlock_ID Block_Size Process_ID Process_Size");
+    for (i = 0; i < nb; i++) {
+        if (b[i].id) printf(" \nBlock #%-7d%-10d%-10d%-10d", b[i].no, b[i].size, b[i].id, p[b[i].id - 1].size);
+        else printf(" \nBlock #%-7d%-10dEmpty Empty ", b[i].no, b[i].size);
+    }
+    printf("\n\nProcess \n-----------");
+    printf("\nProcess_ID Process_Size Block_ID Block_Size");
+    for (i = 0; i < np; i++) {
+        if (p[i].id) printf(" \nProcess $ %-3d%-14d%-10d%-10d ", i + 1, p[i].size, p[i].id, b[p[i].id - 1].size);
+        else printf(" \nProcess $ %-3d%-14dWaiting Waiting ", i + 1, p[i].size);
+    }
+    printf("\n");
+    getch();
+}
+
+Output :
+_______
+
+Enter The No Of Blocks :3
+Enter The Size of Block $ 1   :30
+Enter The Size of Block $ 2   :20
+Enter The Size of Block $ 3   :10
+
+Enter The No Of Processes :3
+Enter The Size of process # 1  :10
+Enter The Size of process # 2  :20
+Enter The Size of process # 3  :30
+Block 
+
+-----------
+Block_ID Block_Size Process_ID Process_Size
+Block #3      10        1         10
+Block #2      20        2         20
+Block #1      30        3         30
+
+Process
+-----------
+Process_ID Process_Size Block_ID Block_Size
+Process $ 1  10            3         30
+Process $ 2  20            2         20
+Process $ 3  30            1         10
+
+__________________________________________________________________________________________________________________________________________
+
+                                          --------------------UNIX SYSTEM CALLS-------------------
+
+1.Display parent id & process id :
+________________________________
+
+#include <stdio.h>
+int main() {
+    printf("\n Parent Process ID %d", getppid());
+    printf("\n Child Process ID %d\n", getpid());
+}
+
+Output :
+______
+
+Parent Process ID 286
+Child Process ID 393
+
+2. Process creation using fork :
+______________________________
+
+#include <stdio.h>
+int main() {
+    printf("Before FORK \n");
+    fork();
+    printf("After FORK \n\n");
+}
+
+Output :
+_______
+
+Before FORK
+After FORK
+
+After FORK
+
+3. Process with fork :
+____________________
+
+#include <stdio.h>
+int main() {
+    int pid;
+    pid = fork();
+    if (pid > 0) {
+        printf("From Parent \n");
+        printf("Parent process id %d\n", getpid());
+    }
+    else {
+        printf("From Child \n");
+        printf("Child process id %d\n", getpid());
+    }
+}
+
+Output :
+______
+
+From Parent
+Parent process id 484
+From Child
+Child process id 485
+
+4. Making child as orphan :
+_________________________
+
+#include <stdio.h>
+int main() {
+    int pid, pid1;
+    pid = fork();
+    if (pid > 0) {
+        printf("From parent process\n");
+        printf("Parent process %d \n", getpid());
+    }
+    else {
+        // sleep(1);
+        printf("From child process\n");
+        printf("child process %d \n", getpid());
+    }
+}
+
+Output :
+______
+
+From parent process
+Parent process 520
+From child process
+child process 521
+
+5. Parent waits till completion of child :
+________________________________________
+
+#include <stdio.h>
+int main() {
+    int pid;
+    pid = fork();
+    printf("%d\n", pid);
+    if (pid == 0) {
+        printf("From child process \n");
+    }
+    else {
+        wait(0);
+        printf("From parent process\n");
+    }
+}
+
+Output :
+______
+
+1122
+0
+From child process
+From parent process
+
+6. Use of exit system call :
+_________________________
+
+#include <stdio.h>
+#include<stdlib.h>
+int main() {
+    int pid;
+    pid = fork();
+    printf("%d\n", pid);
+    if (pid < 0) {
+        perror("Child can't be executed\n");
+        exit(-1);
+    }
+    else {
+        printf("Child created\n");
+        exit(0);
+    }
+}
+
+Output :
+______
+
+1182
+Child created
+0
+Child created
+
+7. Using fork and exec system call :
+__________________________________
+
+#include <stdio.h>
+#include<stdlib.h>
+int main() {
+    int pid;
+    pid = fork();
+    printf("%d\n", pid);
+    if (pid == 0) {
+        execve("/bin/date\n", NULL, NULL);
+        exit(0);
+    }
+    else {
+        printf("Parent process %d\n", pid);
+    }
+}
+
+Output :
+______
+
+1257
+Parent process 1257
+0
+
+8. To list files in specified directory :
+______________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+
+int main() {
+    char d[256];  
+    DIR *p;
+    struct dirent *d1;
+    printf("ENTER A DIRECTORY NAME: ");
+    scanf("%255s", d);  
+    p = opendir(d);
+    if (p == NULL) {
+        perror("Can't find directory");
+        exit(EXIT_FAILURE);
+    }
+    while ((d1 = readdir(p)) != NULL) {  
+        printf("%s\n", d1->d_name);
+    }
+    closedir(p);  
+    return 0;
+}
+
+9. To list files in current directories & sub-directories :
+_________________________________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+
+int main() {
+    DIR *p, *sp;
+    struct dirent *d, *dd;
+    p = opendir(".");
+    if (p == NULL) {
+        perror("Failed to open directory");
+        exit(EXIT_FAILURE);
+    }
+    while ((d = readdir(p)) != NULL) {
+        printf("%s\n", d->d_name);
+        if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, "..")) continue;
+        if (d->d_type == DT_DIR) {
+            sp = opendir(d->d_name);
+            if (sp) {
+                while ((dd = readdir(sp)) != NULL) {
+                    printf("--> %s\n", dd->d_name);
+                }
+                closedir(sp);
+            } else {
+                perror("Failed to open subdirectory");
+            }
+        }
+    }
+    closedir(p);
+    return 0;
+}
+
+Output :
+______
+
+x.c
+..
+hello
+.
+
+10. Create process & display pid of parent & child :
+__________________________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <number_of_processes>\n", argv[0]);
+        return 1;
+    }
+    int pid, i;
+    int n = atoi(argv[1]);
+    for (i = 0; i < n; i++) {
+        pid = fork();
+        if (pid < 0) {
+            perror("Fork failed");
+            exit(EXIT_FAILURE);
+        }
+        if (pid == 0) {
+            printf("Child process ID: %d, Parent process ID: %d\n", getpid(), getppid());
+            return 0;  
+        }
+    }
+    for (i = 0; i < n; i++) {
+        wait(NULL);
+    }
+    return 0;
+}
+
+Output :
+_______
+
+mohdayaan8071@Ayaan:~/ayaan$ ./hello 3
+Child process ID: 1514, Parent process ID: 1513
+Child process ID: 1515, Parent process ID: 1513
+Child process ID: 1516, Parent process ID: 1513
+
+11. Program to rename a directory:
+_________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    char s[256], d[256];  
+    printf("Enter source Dir Name: ");
+    scanf("%255s", s);  
+    printf("Enter New Dir Name: ");
+    scanf("%255s", d); 
+    if (rename(s, d) == -1) {
+        perror("Can't rename directory");
+    } else {
+        printf("%s has been renamed to %s\n", s, d);
+    }
+    return 0;
+}
+
+Output :
+________
+
+Enter source Dir Name: x.c
+Enter New Dir Name: xxx.c
+x.c has been renamed to xxx.c
+
+__________________________________________________________________________________________________________________________________________
+
+                                              -----------------I/O SYSTEM CALLS------------------
+
+1. Write a program to open , read and write files using system calls :
+____________________________________________________________________
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main() {
+    char buff[1000], fn[1000];  
+    int fd, n;
+    printf("Enter file name: ");
+    scanf("%99s", fn);  
+    fd = open(fn, O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        exit(1);  
+    }
+    n = read(fd, buff, sizeof(buff));
+    if (n == -1) {
+        perror("Error reading file");
+        close(fd);
+        exit(1);
+    }
+    n = write(1, buff, n);
+    if (n == -1) {
+        perror("Error writing to stdout");
+        close(fd);
+        exit(1);
+    }
+    close(fd);
+    return 0;
+}
+
+2. Using system calls write line of texts in a file :
+___________________________________________________
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    char fn[100], *buff;  
+    int fd, n;
+    buff = (char *)malloc(256 * sizeof(char));  
+    if (buff == NULL) {
+        perror("Memory allocation failed");
+        return 1;
+    }
+    printf("\nEnter file name: ");
+    scanf("%s", fn);  
+    printf("\nEnter text: ");
+    getchar();  
+    fgets(buff, 256, stdin);  
+    fd = open(fn, O_CREAT | O_WRONLY | O_TRUNC, 0644);  
+    if (fd == -1) {
+        perror("Error opening file");
+        free(buff);
+        return 1;
+    }
+    n = write(fd, buff, strlen(buff));
+    if (n == -1) {
+        perror("Error writing to file");
+        close(fd);
+        free(buff);
+        return 1;
+    }
+    printf("Text has been written to %s\n", fn);
+    close(fd);
+    free(buff);
+    return 0;
+}
+
+Output :
+_______
+
+Enter file name: x.c
+
+Enter text: chuchi
+Text has been written to x.c
+
+3. Write a program to open, read and write files and perform file copy operation :
+________________________________________________________________________________
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main() {
+    char buff[1000], fn1[100], fn2[100];
+    int fd1, fd2, n;
+    printf("Enter source filename: ");
+    scanf("%99s", fn1);  
+    printf("Enter destination filename: ");
+    scanf("%99s", fn2);  
+    fd1 = open(fn1, O_RDONLY);
+    if (fd1 == -1) {
+        perror("Error opening source file");
+        return 1;  
+    }
+    fd2 = open(fn2, O_CREAT | O_WRONLY | O_TRUNC, 0644);  
+    if (fd2 == -1) {
+        perror("Error opening destination file");
+        close(fd1);  
+        return 1;
+    }
+    n = read(fd1, buff, sizeof(buff));
+    if (n == -1) {
+        perror("Error reading source file");
+        close(fd1);
+        close(fd2);
+        return 1;
+    }
+    n = write(fd2, buff, n);
+    if (n == -1) {
+        perror("Error writing to destination file");
+        close(fd1);
+        close(fd2);
+        return 1;
+    }
+    printf("File copied successfully.\n");
+    close(fd1);
+    close(fd2);
+    return 0;
+}
+
+Output :
+_______
+
+Enter source filename: x.c
+Enter destination filename: ayaan.c
+File copied successfully.
+
+4. Write a program to remove a directory :
+________________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    char fn[100]; 
+    printf("Enter source filename: ");
+    scanf("%99s", fn); 
+    if (remove(fn) == 0) {
+        printf("File removed successfully.\n");
+    } else {
+        perror("Error removing file");  
+    }
+    return 0;
+}
+
+Output :
+_______
+
+Enter source filename: x.c
+File removed successfully.
+
+__________________________________________________________________________________________________________________________________________
+
+                                               ---------------SIMULATION OF UNIX COMMANDS----------------
+
+1. Write a program for the simulation of ls command :
+____________________________________________________
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+
+int main() {
+    char dirname[100];
+    DIR *p;
+    struct dirent *d;
+    printf("Enter directory name: ");
+    scanf("%99s", dirname);  
+    p = opendir(dirname); 
+    if (p == NULL) {
+        perror("Cannot find or open directory");
+        exit(-1); 
+    }
+    while ((d = readdir(p)) != NULL) {
+        printf("%s\n", d->d_name);
+    }
+    closedir(p); 
+    return 0;
+}
+
+2. Write a program for the simulation for grep command :
+_____________________________________________________
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main() {
+    char fn[100], pat[100], temp[200];
+    FILE *fp;
+    printf("Enter file name: ");
+    scanf("%99s", fn);  
+    printf("Enter pattern to be searched: ");
+    scanf("%99s", pat);  
+    fp = fopen(fn, "r");  
+    if (fp == NULL) {
+        perror("Error opening file");
+        return 1;  
+    }
+    while (fgets(temp, sizeof(temp), fp) != NULL) {
+        if (strstr(temp, pat)) {
+            printf("%s", temp);  
+        }
+    }
+    fclose(fp);  
+    return 0;
+}
+
+Output:
+______
+
+Enter file name: x.c
+Enter pattern to be searched: temp
+    char fn[100], pat[100], temp[200];
+    while (fgets(temp, sizeof(temp), fp) != NULL) {
+        if (strstr(temp, pat)) {
+            printf("%s", temp);
+
+
+                                                  --------------------******-----------------
+
+
+
+
+
+
+
+
+
+
